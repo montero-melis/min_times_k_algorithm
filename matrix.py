@@ -14,7 +14,7 @@ class SquareMatrix:
             self.n = builder
 
             self.data = []
-            for i in range(self.n):
+            for i in xrange(self.n):
                 row = [0]*self.n
                 if identity:
                     row[i] = 1
@@ -63,14 +63,14 @@ class SquareMatrix:
 
     def __str__(self):
         render = '['
-        for i in range(self.n):
+        for i in xrange(self.n):
             if i > 0:
                 render += ' ['
             else:
                 render += '['
 
             row = []
-            for j in range(self.n):
+            for j in xrange(self.n):
                 col_w = max([len(str(e)) for e in self.col(j)])
                 row.append(str(self[i,j]).rjust(col_w))
             render += ', '.join(row) + "]"
