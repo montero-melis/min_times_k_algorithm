@@ -1,5 +1,7 @@
 #!/usr/bin/env python2
 
+import itertools
+
 class SquareMatrix:
     def __init__(self,builder,**kwargs):
         # Get keyword arguments
@@ -17,6 +19,17 @@ class SquareMatrix:
                 if identity:
                     row[i] = 1
                 self.data.append(row)
+
+    @classmethod
+    def identity(cls,n):
+        return SquareMatrix(n, identity = True)
+
+    @classmethod
+    def pairs(cls,n,set):
+        m = SquareMatrix(n)
+        for pair in itertools.combinations(set,2):
+            m[pair] = 1
+        return m
 
     def __add__(self,other):
         m = SquareMatrix(self.n)
