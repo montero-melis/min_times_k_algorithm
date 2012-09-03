@@ -23,7 +23,7 @@ class Matrix:
         m.rows = lst
         m.setdim()
         return m
-   
+
     @classmethod
     def identity(cls,nr):
         m = Matrix(nr)
@@ -108,3 +108,16 @@ class Matrix:
         m = m.transpose()
         m = m.swap_row(i,j)
         return m.transpose()
+
+    def diagonal(self,offset=0):
+        diagonal_list = []
+        for i in xrange(self.nr):
+            if offset >= 0:
+                if i+offset >= self.nr:
+                    break
+                diagonal_list.append(self[i,i+offset])
+            else:
+                if i-offset >= self.nc:
+                    break
+                diagonal_list.append(self[i-offset,i])
+        return diagonal_list
