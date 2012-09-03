@@ -1,19 +1,22 @@
 #!/usr/bin/env python2
 
 class SquareMatrix:
-    def __init__(self,n,**kwargs):
+    def __init__(self,builder,**kwargs):
         # Get keyword arguments
         identity = kwargs.get('identity')
 
-        # square matrix of size n x n
-        self.n = n
+        if isinstance(builder,list):
+            self.data = builder
+            self.n    = len(builder)
+        else:
+            self.n = builder
 
-        self.data = []
-        for i in range(n):
-            row = [0]*n
-            if identity:
-                row[i] = 1
-            self.data.append(row)
+            self.data = []
+            for i in range(self.n):
+                row = [0]*self.n
+                if identity:
+                    row[i] = 1
+                self.data.append(row)
 
     def __add__(self,other):
         m = SquareMatrix(self.n)
