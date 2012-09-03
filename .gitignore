@@ -8,6 +8,8 @@ EVERYTHING
 *.pdf
 *.bak
 *.gz
+*.aux
+*.log
 
 # Specific files
 desktop.ini
