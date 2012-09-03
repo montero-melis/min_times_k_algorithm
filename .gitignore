@@ -13,3 +13,6 @@ EVERYTHING
 
 # Specific files
 desktop.ini
+
+# Ignore python compiled files
+*.pyc
