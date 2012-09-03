@@ -2,99 +2,109 @@
 
 import itertools
 
-class SquareMatrix:
-    def __init__(self,builder,**kwargs):
-        # Get keyword arguments
-        identity = kwargs.get('identity')
+class Matrix:
+    def __init__(self,nr=None,nc=None):
+        if nr:
+            if not nc:
+                nc = nr
 
-        if isinstance(builder,list):
-            self.data = builder
-            self.n    = len(builder)
+            self.rows = []
+            for i in xrange(nr):
+                row = [0]*nc
+                self.rows.append(row)
         else:
-            self.n = builder
+            self.rows=[[]]
 
-            self.data = []
-            for i in xrange(self.n):
-                row = [0]*self.n
-                if identity:
-                    row[i] = 1
-                self.data.append(row)
+        self.setdim()
 
     @classmethod
-    def identity(cls,n):
-        return SquareMatrix(n, identity = True)
+    def build(cls,lst):
+        m = Matrix()
+        m.rows = lst
+        m.setdim()
+        return m
+   
+    @classmethod
+    def identity(cls,nr):
+        m = Matrix(nr)
+        for i in range(nr):
+            m[i,i] = 1
+        return m
 
     @classmethod
-    def pairs(cls,set,n=None):
-        if not n:
-            n = len(set)
-        m = SquareMatrix(n)
+    def pairs(cls,set,nr=None):
+        if not nr:
+            nr = len(set)
+        m = Matrix(nr)
         for pair in itertools.combinations_with_replacement(set,2):
             m[pair] = 1
         return m
 
+    def setdim(self):
+        self.nr = len(self.rows)
+        self.nc = len(self.rows[0])
+
     def transpose(self):
-        return SquareMatrix(zip(*self.data))
+        return Matrix.build(zip(*self.rows))
 
     def __add__(self,other):
-        m = SquareMatrix(self.n)
+        m = Matrix(self.nr,self.nc)
 
-        for i in xrange(self.n):
-            for j in xrange(self.n):
+        for i in xrange(self.nr):
+            for j in xrange(self.nc):
                 m[i,j] = self[i,j] + other[i,j]
 
         return m
 
     def __sub__(self,other):
-        m = SquareMatrix(self.n)
+        m = Matrix(self.nr,self.nc)
 
-
-        for i in xrange(self.n):
-            for j in xrange(self.n):
+        for i in xrange(self.nr):
+            for j in xrange(self.nc):
                 m[i,j] = self[i,j] - other[i,j]
 
         return m
 
     def __setitem__(self,k,v):
         i,j = k
-        self.data[i][j] = v
+        self.rows[i][j] = v
 
     def __getitem__(self,k):
         i,j = k
-        return self.data[i][j]
+        return self.rows[i][j]
 
     def __str__(self):
         render = '['
-        for i in xrange(self.n):
+        for i in xrange(self.nr):
             if i > 0:
                 render += ' ['
             else:
                 render += '['
 
             row = []
-            for j in xrange(self.n):
+            for j in xrange(self.nc):
                 col_w = max([len(str(e)) for e in self.col(j)])
                 row.append(str(self[i,j]).rjust(col_w))
             render += ', '.join(row) + "]"
-            if i < self.n-1:
+            if i < self.nr-1:
                 render += ",\n"
 
         render += ']'
         return render
 
     def row(self,i):
-        return self.data[i]
+        return self.rows[i]
 
     def col(self,j):
-        return [x[j] for x in self.data]
+        return [row[j] for row in self.rows]
 
     def swap_row(self,i, j):
-        m = SquareMatrix(self.data)
-        m.data[i],m.data[j] = self.data[j],self.data[i]
+        m = Matrix.build(self.rows)
+        m.rows[i],m.rows[j] = self.rows[j],self.rows[i]
         return m
 
     def swap_col(self,i,j):
-        m = SquareMatrix(self.data)
+        m = Matrix.build(self.rows)
         m = m.transpose()
         m = m.swap_row(i,j)
         return m.transpose()
