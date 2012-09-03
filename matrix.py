@@ -31,6 +31,9 @@ class SquareMatrix:
             m[pair] = 1
         return m
 
+    def transpose(self):
+        return SquareMatrix(zip(*self.data))
+
     def __add__(self,other):
         m = SquareMatrix(self.n)
 
@@ -83,3 +86,13 @@ class SquareMatrix:
     def col(self,j):
         return [x[j] for x in self.data]
 
+    def swap_row(self,i, j):
+        m = SquareMatrix(self.data)
+        m.data[i],m.data[j] = self.data[j],self.data[i]
+        return m
+
+    def swap_col(self,i,j):
+        m = SquareMatrix(self.data)
+        m = m.transpose()
+        m = m.swap_row(i,j)
+        return m.transpose()
