@@ -25,9 +25,11 @@ class SquareMatrix:
         return SquareMatrix(n, identity = True)
 
     @classmethod
-    def pairs(cls,n,set):
+    def pairs(cls,set,n=None):
+        if not n:
+            n = len(set)
         m = SquareMatrix(n)
-        for pair in itertools.combinations(set,2):
+        for pair in itertools.combinations_with_replacement(set,2):
             m[pair] = 1
         return m
 
