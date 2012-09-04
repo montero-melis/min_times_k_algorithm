@@ -3,6 +3,7 @@
 import itertools
 import sys
 
+
 class Results:
     def __init__(self,n,k):
         self.N = n

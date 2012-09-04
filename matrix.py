@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 
+ 
 class Matrix:
     def __init__(self,nr=None,nc=None):
         if nr:
@@ -47,7 +48,7 @@ class Matrix:
         return d
 
     def find_pair(self,r):
-        m = Matrix(self.nr,self.nr+1)
+        m = Matrix(self.nr,self.nr+1) # Creates a matrix
         m = m + self
 
         for index,row in enumerate(m.rows):
@@ -171,7 +172,7 @@ class Matrix:
         return diagonal_list
 
 if __name__ == "__main__":
-    r = [[0,1,2],[3,4,0],[1,4]]
+    r = [[0,1,3],[1,4,0],[3,2]]
     m = Matrix.d(r,5)
     print m.find_pair(r)
 
