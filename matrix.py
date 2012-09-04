@@ -56,22 +56,18 @@ class Matrix:
         sorted_diagonal = sorted(enumerate(self.diagonal()),key=lambda e: e[1])
         indexes = [e[0] for e in sorted_diagonal]
 
+
         sorted_m_rows = []
         for index in indexes:
              sorted_m_rows.append(self.rows[index])
 
         sorted_m = Matrix.build(sorted_m_rows)
 
-        print self
-        print sorted_m
-
         next_j = False
         for i in r[-1][::-1]:
-            print i
             col = sorted_m.col(i)
-            print col
             if 0 in col:
-                next_j = col.index(0)
+                next_j = indexes[col.index(0)]
                 break
 
         return next_j
@@ -171,7 +167,7 @@ class Matrix:
         return diagonal_list
 
 if __name__ == "__main__":
-    r = [[0,1,2],[3,4,0],[1,4]]
+    r = r = [[0,1,3],[1,4,0],[3,2]]
     m = Matrix.d(r,5)
     print m.find_pair(r)
 
