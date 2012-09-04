@@ -1,7 +1,5 @@
 #!/usr/bin/env python2
 
-import itertools
-
 class Matrix:
     def __init__(self,nr=None,nc=None):
         if nr:
@@ -31,14 +29,52 @@ class Matrix:
             m[i,i] = 1
         return m
 
+    # print Matrix.s([0,1,2],5)
+    # print Matrix.s([[0,1,2],[3]],5)
+
     @classmethod
-    def pairs(cls,set,nr=None):
+    def d(cls,sets,nr=None):
         if not nr:
-            nr = len(set)
-        m = Matrix(nr)
-        for pair in itertools.combinations_with_replacement(set,2):
-            m[pair] = 1
-        return m
+            nr = len(sets)
+        d = Matrix(nr)
+        for set in sets:
+            s = Matrix(nr)
+            for i in xrange(nr):
+                for j in xrange(nr):
+                    if i in set and j in set:
+                        s[i,j] = 1
+            d = d + s
+        return d
+
+    def find_pair(self,r):
+        m = Matrix(self.nr,self.nr+1)
+        m = m + self
+
+        for index,row in enumerate(m.rows):
+            row[-1] = index
+
+        sorted_diagonal = sorted(enumerate(self.diagonal()),key=lambda e: e[1])
+        indexes = [e[0] for e in sorted_diagonal]
+
+        sorted_m_rows = []
+        for index in indexes:
+             sorted_m_rows.append(self.rows[index])
+
+        sorted_m = Matrix.build(sorted_m_rows)
+
+        print self
+        print sorted_m
+
+        next_j = False
+        for i in r[-1][::-1]:
+            print i
+            col = sorted_m.col(i)
+            print col
+            if 0 in col:
+                next_j = col.index(0)
+                break
+
+        return next_j
 
     def setdim(self):
         self.nr = len(self.rows)
@@ -65,13 +101,25 @@ class Matrix:
 
         return m
 
+    def __mul__(self,other):
+        m = Matrix(self.nr,other.nc)
+        for i in range(self.nr):
+            for j in range(other.nc):
+                for k in range(other.nr):
+                    m[i,j] += self[i,k]*other[k,j]
+        return m
+
     def __setitem__(self,k,v):
         i,j = k
         self.rows[i][j] = v
 
     def __getitem__(self,k):
         i,j = k
-        return self.rows[i][j]
+        try:
+            value = self.rows[i][j]
+        except IndexError:
+            value = 0
+        return value
 
     def __str__(self):
         render = '['
@@ -121,3 +169,9 @@ class Matrix:
                     break
                 diagonal_list.append(self[i-offset,i])
         return diagonal_list
+
+if __name__ == "__main__":
+    r = [[0,1,2],[3,4,0],[1,4]]
+    m = Matrix.d(r,5)
+    print m.find_pair(r)
+
