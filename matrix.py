@@ -126,7 +126,7 @@ class Matrix:
     def clone(self):
         return self.build(self.rows)
 
-class MinCombMatrix(Matrix):
+class MinTimesKMatrix(Matrix):
     @classmethod
     def pairs(cls,sets,nr=None):
         if not nr:
@@ -164,9 +164,9 @@ class MinCombMatrix(Matrix):
 
     def find_pair(self,r):
         sorted_m = self.sorted_diagonal()
-        indexes = sorted_m.transpose().rows[-1]
+        indexes  = sorted_m.transpose().rows[-1]
 
-        next_j = False
+        next_j = None
 
         for i in r[-1][::-1]:
             col = sorted_m.col(i)
@@ -177,10 +177,29 @@ class MinCombMatrix(Matrix):
         return next_j
 
     def find_next(self):
-        pass
+        sorted_m = self.sorted_diagonal()
+
+        max_zeroes = 0
+        row_zeroes = None
+        for row in sorted_m.rows:
+            zeroes = len(filter(lambda x: x == 0,row[:-1]))
+            if max_zeroes < zeroes:
+                max_zeroes = zeroes
+                row_zeroes = row[-1]
+
+        if not row_zeroes:
+            row_zeroes = sorted_m.rows[0][-1]
+
+        return row_zeroes
+
+    def all_pairs(self):
+        if 0 in [i for row in self.rows for i in row]:
+            return False
+        else:
+            return True
 
 if __name__ == "__main__":
     r = [[0,1,3],[1,4,0],[3,2]]
-    m = MinCombMatrix.pairs(r,5)
-    print m.find_pair(r)
+    m = MinTimesKMatrix.pairs(r,5)
+    print m.find_next()
 
