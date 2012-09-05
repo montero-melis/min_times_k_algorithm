@@ -141,8 +141,6 @@ class MinCombMatrix(Matrix):
             d = d + s
         return d
 
-    # def sort_diagonal(self):
-
     def sorted_diagonal(self):
         m = self.__class__(self.nr,self.nc+1)
         m = m + self
@@ -180,8 +178,6 @@ class MinCombMatrix(Matrix):
 
     def find_next(self):
         pass
-        # obtener la fila con mayor numero de 0s de la matriz sorted_diagonal
-
 
 if __name__ == "__main__":
     r = [[0,1,3],[1,4,0],[3,2]]
