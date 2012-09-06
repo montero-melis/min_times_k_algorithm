@@ -174,6 +174,10 @@ class MinTimesKMatrix(Matrix):
                 next_j = indexes[col.index(0)]
                 break
 
+        # TODO: fix this
+        if next_j == None:
+            next_j = 0
+
         return next_j
 
     def find_next(self):
@@ -199,7 +203,6 @@ class MinTimesKMatrix(Matrix):
             return True
 
 if __name__ == "__main__":
-    r = [[0,1,3],[1,4,0],[3,2]]
-    m = MinTimesKMatrix.pairs(r,5)
-    print m.find_next()
+    r = [[0, 1, 2, 3], [4, 5, 6, 0], [1, 4, 2, 5], [3, 6, 1, 2], [4, 3, 5]]
+    m = MinTimesKMatrix.pairs(r,7)
 

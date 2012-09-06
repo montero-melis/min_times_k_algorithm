@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import sys
+import itertools
 from matrix import MinTimesKMatrix as M
 
 class Results:
@@ -18,8 +19,8 @@ class Results:
             self.column = []
 
     def column_complete(self):
-        # return len(self.column) % self.K == 0
-        return len(self.column) == self.K
+        return len(self.column) % self.K == 0
+        # return len(self.column) == 0
 
     def r(self):
         r = self.subsets[:]
@@ -75,29 +76,27 @@ class MinTimesK:
         self.assign_i(self.find_next())
 
         while True:
-            print "\n--- loop %i ---" % (self.safe_exit,)
+            # print "\n--- loop %i ---" % (self.safe_exit,)
+            self.safe_exit += 1
+
             self.assign_j(self.find_pair())
+
             if self.finished():
                 break
 
             if self.j != None:
-                self.j_to_i()
+                self.i = self.j
             else:
                 self.assign_i(self.find_next())
                 if self.finished():
-                    break
+                        break
 
-            print self.results.r()
+            # print self.results.r()
 
-        print "--- END ---"
-        print "r      ",self.results.r()
-        print "column ",self.results.column
-        print "subsets",self.results.subsets
-
-    def j_to_i(self):
-        # print "i=j=%i" % (self.j)
-        j = self.j
-        self.i = j
+        # print "--- END ---"
+        # print "r      ",self.results.r()
+        # print "column ",self.results.column
+        # print "subsets",self.results.subsets
 
     def assign_i(self,i):
         # print "assign_i: %s" % (str(i),)
@@ -119,16 +118,37 @@ class MinTimesK:
         return self.adjacency_matrix().find_pair(self.results.r())
 
     def finished(self):
-        self.safe_exit += 1
-
         col_complete = self.results.column_complete()
         all_pairs    = self.adjacency_matrix().all_pairs()
 
-        if self.safe_exit > 20 or (col_complete and all_pairs):
+        if self.safe_exit > 200 or (col_complete and all_pairs):
             return True
         else:
             return False
 
+if __name__ == "__main__":
+    n = 5
+    k = 4
 
-min_t_k = MinTimesK(5,3)
-min_t_k.solve()
+    min_t_k = MinTimesK(n,k)
+    min_t_k.solve()
+
+    r = min_t_k.results.subsets
+
+    print r
+
+    # check the result
+    l = set(itertools.combinations(range(n),2))
+
+    for group in r:
+        group_int = [ int(i) for i in sorted(group)]
+        group_set = set(itertools.combinations(group_int,2))
+        l = l - group_set
+
+    if len(l) == 0:
+        print "correct"
+    else:
+        print "missing pairs:"
+        print l
+
+
