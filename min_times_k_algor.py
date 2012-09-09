@@ -129,16 +129,16 @@ if __name__ == "__main__":
     print "min_times_k = %i" % min_t_k.results.min_times_k()
 
     # check the result
-    l = set(itertools.combinations(range(n),2))
-
-    for group in r:
-        group_int = [int(i) for i in sorted(group)]
-        group_set = set(itertools.combinations(group_int,2))
-        l = l - group_set
-
-    if len(l) == 0:
+    m_pairs = M.pairs(r,n)
+    missing = []
+    for i in xrange(n):
+        for j in xrange(n):
+            if i == j: continue
+            if m_pairs[i,j] == 0:
+                missing.append([i,j])
+    if len(missing) == 0:
         print "correct"
     else:
         print "missing pairs:"
-        print l
+        print missing
 
