@@ -117,7 +117,7 @@ if __name__ == "__main__":
         n,k = map(int,sys.argv[1:])
     else:
         # otherwise use hardcoded args
-        n = 11
+        n = 20
         k = 6
 
     min_t_k = MinTimesK(n,k)
@@ -125,20 +125,35 @@ if __name__ == "__main__":
 
     r = min_t_k.results.subsets
 
+    print "Subsets:"
     print M.build(r)
+    print
+
+    print "Pairs:"
+    m_pairs = M.pairs(r,n)
+    max_num = 0
+    for i,row in enumerate(m_pairs.rows):
+        val = max(i,max(row))
+        max_num = max(max_num, len(str(val)))
+
+    for i,row in enumerate(m_pairs.rows):
+        print "%s: %s" % (str(i).rjust(max_num), str(row[:(i+1)]).ljust(max_num))
+    print
+
     print "min_times_k = %i" % min_t_k.results.min_times_k()
 
     # check the result
-    m_pairs = M.pairs(r,n)
     missing = []
     for i in xrange(n):
         for j in xrange(n):
             if i == j: continue
             if m_pairs[i,j] == 0:
                 missing.append([i,j])
+
+    print
     if len(missing) == 0:
-        print "correct"
+        print "CORRECT"
     else:
-        print "missing pairs:"
+        print "Missing pairs:"
         print missing
 
