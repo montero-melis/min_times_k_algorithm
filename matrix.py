@@ -139,6 +139,7 @@ class MinTimesKMatrix(Matrix):
                     if i in set and j in set:
                         s[i,j] = 1
             d = d + s
+
         return d
 
     def sorted_diagonal(self):
@@ -176,7 +177,7 @@ class MinTimesKMatrix(Matrix):
 
         return next_j
 
-    def find_next(self):
+    def find_next(self,r):
         sorted_m = self.sorted_diagonal()
 
         max_zeroes = 0
@@ -188,7 +189,10 @@ class MinTimesKMatrix(Matrix):
                 row_zeroes = row[-1]
 
         if not row_zeroes:
-            row_zeroes = sorted_m.rows[0][-1]
+            sorted_vector = sorted_m.transpose().rows[-1]
+            if r:
+                sorted_vector = [e for e in sorted_vector if e not in r[-1]]
+            row_zeroes = sorted_vector[0]
 
         return row_zeroes
 

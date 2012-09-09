@@ -28,6 +28,9 @@ class Results:
             r.append(self.column)
         return r
 
+    def min_times_k(self):
+        return len(self.subsets)
+
 class MinTimesK:
     """
     This is the class used to calculate the minimum number of ...
@@ -67,21 +70,20 @@ class MinTimesK:
         self.assign_i(self.find_next())
 
         while True:
+            if self.results.column_complete():
+                next_i = self.find_next()
+                self.assign_i(next_i)
+
             next_j = self.find_pair()
 
             if next_j != None:
                 self.assign_j(next_j)
-
-            if self.finished():
-                break
-
-            if next_j != None:
                 self.i = self.j
             else:
                 next_i = self.find_next()
                 self.assign_i(next_i)
-                if self.finished():
-                        break
+
+            if self.finished(): break
 
     def assign_i(self,i):
         self.i = i
@@ -95,7 +97,7 @@ class MinTimesK:
         return M.pairs(self.results.r(),self.N)
 
     def find_next(self):
-        return self.adjacency_matrix().find_next()
+        return self.adjacency_matrix().find_next(self.results.r())
 
     def find_pair(self):
         return self.adjacency_matrix().find_pair(self.results.r())
@@ -115,21 +117,22 @@ if __name__ == "__main__":
         n,k = map(int,sys.argv[1:])
     else:
         # otherwise use hardcoded args
-        n = 8
-        k = 4
+        n = 11
+        k = 6
 
     min_t_k = MinTimesK(n,k)
     min_t_k.solve()
 
     r = min_t_k.results.subsets
 
-    print r
+    print M.build(r)
+    print "min_times_k = %i" % min_t_k.results.min_times_k()
 
     # check the result
     l = set(itertools.combinations(range(n),2))
 
     for group in r:
-        group_int = [ int(i) for i in sorted(group)]
+        group_int = [int(i) for i in sorted(group)]
         group_set = set(itertools.combinations(group_int,2))
         l = l - group_set
 
@@ -138,5 +141,4 @@ if __name__ == "__main__":
     else:
         print "missing pairs:"
         print l
-
 
