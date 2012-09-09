@@ -110,11 +110,16 @@ class MinTimesK:
             return False
 
 if __name__ == "__main__":
-    n,k = map(int,sys.argv[1:])
+    if len(sys.argv[1:]) == 2:
+        # accept command line args
+        n,k = map(int,sys.argv[1:])
+    else:
+        # otherwise use hardcoded args
+        n = 8
+        k = 4
 
     min_t_k = MinTimesK(n,k)
     min_t_k.solve()
-
 
     r = min_t_k.results.subsets
 
