@@ -174,10 +174,6 @@ class MinTimesKMatrix(Matrix):
                 next_j = indexes[col.index(0)]
                 break
 
-        # # TODO: fix this
-        # if next_j == None:
-        #     next_j = 0
-
         return next_j
 
     def find_next(self):

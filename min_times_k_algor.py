@@ -62,25 +62,12 @@ class MinTimesK:
         self.j = 0
 
         self.results          = Results(self.N,self.K)
-        #self.adjacency_matrix = M(self.N)
-
-        self.safe_exit = 0 # Just for debugging
-
-
-    def debug(self,label):
-        i = self.i
-        j = self.j
-        print "[%s] i=%s, j=%s" % (label,str(i),str(j))
 
     def solve(self):
         self.assign_i(self.find_next())
 
         while True:
-            # print "\n--- loop %i ---" % (self.safe_exit,)
-            self.safe_exit += 1
-
             next_j = self.find_pair()
-            # print ["next_j",next_j]
 
             if next_j != None:
                 self.assign_j(next_j)
@@ -96,20 +83,11 @@ class MinTimesK:
                 if self.finished():
                         break
 
-            # print self.results.r()
-
-        # print "--- END ---"
-        # print "r      ",self.results.r()
-        # print "column ",self.results.column
-        # print "subsets",self.results.subsets
-
     def assign_i(self,i):
-        # print "assign_i: %s" % (str(i),)
         self.i = i
         self.results.append(i)
 
     def assign_j(self,j):
-        # print "assign_j: %s" % (str(j),)
         self.j = j
         self.results.append(j)
 
@@ -126,12 +104,7 @@ class MinTimesK:
         col_complete = self.results.column_complete()
         all_pairs    = self.adjacency_matrix().all_pairs()
 
-        if self.safe_exit > 2000 or (col_complete and all_pairs):
-            print "==== END ===="
-            print ["col_complete",col_complete]
-            print ["all_pairs", all_pairs]
-            print ["safe_exit", self.safe_exit]
-            print
+        if col_complete and all_pairs:
             return True
         else:
             return False
@@ -160,7 +133,5 @@ if __name__ == "__main__":
     else:
         print "missing pairs:"
         print l
-
-    #print M.pairs(r,n)
 
 
