@@ -79,15 +79,20 @@ class MinTimesK:
             # print "\n--- loop %i ---" % (self.safe_exit,)
             self.safe_exit += 1
 
-            self.assign_j(self.find_pair())
+            next_j = self.find_pair()
+            # print ["next_j",next_j]
+
+            if next_j != None:
+                self.assign_j(next_j)
 
             if self.finished():
                 break
 
-            if self.j != None:
+            if next_j != None:
                 self.i = self.j
             else:
-                self.assign_i(self.find_next())
+                next_i = self.find_next()
+                self.assign_i(next_i)
                 if self.finished():
                         break
 
@@ -121,17 +126,22 @@ class MinTimesK:
         col_complete = self.results.column_complete()
         all_pairs    = self.adjacency_matrix().all_pairs()
 
-        if self.safe_exit > 200 or (col_complete and all_pairs):
+        if self.safe_exit > 2000 or (col_complete and all_pairs):
+            print "==== END ===="
+            print ["col_complete",col_complete]
+            print ["all_pairs", all_pairs]
+            print ["safe_exit", self.safe_exit]
+            print
             return True
         else:
             return False
 
 if __name__ == "__main__":
-    n = 5
-    k = 4
+    n,k = map(int,sys.argv[1:])
 
     min_t_k = MinTimesK(n,k)
     min_t_k.solve()
+
 
     r = min_t_k.results.subsets
 
@@ -150,5 +160,7 @@ if __name__ == "__main__":
     else:
         print "missing pairs:"
         print l
+
+    #print M.pairs(r,n)
 
 
