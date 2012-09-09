@@ -1,7 +1,5 @@
 #!/usr/bin/env python2
 
-import itertools
-
 class Matrix:
     def __init__(self,nr=None,nc=None):
         if nr:
@@ -19,25 +17,16 @@ class Matrix:
 
     @classmethod
     def build(cls,lst):
-        m = Matrix()
+        m = cls()
         m.rows = lst
         m.setdim()
         return m
 
     @classmethod
     def identity(cls,nr):
-        m = Matrix(nr)
+        m = cls(nr)
         for i in range(nr):
             m[i,i] = 1
-        return m
-
-    @classmethod
-    def pairs(cls,set,nr=None):
-        if not nr:
-            nr = len(set)
-        m = Matrix(nr)
-        for pair in itertools.combinations_with_replacement(set,2):
-            m[pair] = 1
         return m
 
     def setdim(self):
@@ -45,10 +34,10 @@ class Matrix:
         self.nc = len(self.rows[0])
 
     def transpose(self):
-        return Matrix.build(zip(*self.rows))
+        return self.__class__.build(zip(*self.rows))
 
     def __add__(self,other):
-        m = Matrix(self.nr,self.nc)
+        m = self.__class__(self.nr,self.nc)
 
         for i in xrange(self.nr):
             for j in xrange(self.nc):
@@ -57,12 +46,20 @@ class Matrix:
         return m
 
     def __sub__(self,other):
-        m = Matrix(self.nr,self.nc)
+        m = self.__class__(self.nr,self.nc)
 
         for i in xrange(self.nr):
             for j in xrange(self.nc):
                 m[i,j] = self[i,j] - other[i,j]
 
+        return m
+
+    def __mul__(self,other):
+        m = self.__class__(self.nr,other.nc)
+        for i in range(self.nr):
+            for j in range(other.nc):
+                for k in range(other.nr):
+                    m[i,j] += self[i,k]*other[k,j]
         return m
 
     def __setitem__(self,k,v):
@@ -71,7 +68,11 @@ class Matrix:
 
     def __getitem__(self,k):
         i,j = k
-        return self.rows[i][j]
+        try:
+            value = self.rows[i][j]
+        except IndexError:
+            value = 0
+        return value
 
     def __str__(self):
         render = '['
@@ -99,12 +100,12 @@ class Matrix:
         return [row[j] for row in self.rows]
 
     def swap_row(self,i, j):
-        m = Matrix.build(self.rows)
+        m = self.__class__.build(self.rows)
         m.rows[i],m.rows[j] = self.rows[j],self.rows[i]
         return m
 
     def swap_col(self,i,j):
-        m = Matrix.build(self.rows)
+        m = self.__class__.build(self.rows)
         m = m.transpose()
         m = m.swap_row(i,j)
         return m.transpose()
@@ -121,3 +122,83 @@ class Matrix:
                     break
                 diagonal_list.append(self[i-offset,i])
         return diagonal_list
+
+    def clone(self):
+        return self.build(self.rows)
+
+class MinTimesKMatrix(Matrix):
+    @classmethod
+    def pairs(cls,sets,nr=None):
+        if not nr:
+            nr = len(sets)
+        d = cls(nr)
+        for set in sets:
+            s = cls(nr)
+            for i in xrange(nr):
+                for j in xrange(nr):
+                    if i in set and j in set:
+                        s[i,j] = 1
+            d = d + s
+        return d
+
+    def sorted_diagonal(self):
+        m = self.__class__(self.nr,self.nc+1)
+        m = m + self
+
+        # add row index to last column
+        for i,row in enumerate(m.rows):
+            row[-1] = i
+
+        # get array with the sorted positions of the diagonal
+        sorted_diagonal = sorted(enumerate(self.diagonal()),key=lambda e: e[1])
+        indexes = [e[0] for e in sorted_diagonal]
+
+        # reorder by the indexes array
+        sorted_m_rows = []
+        for index in indexes:
+             sorted_m_rows.append(m.rows[index])
+
+        # return a new Matrix object with the sorted rows in place
+        sorted_m = self.__class__.build(sorted_m_rows)
+        return sorted_m
+
+    def find_pair(self,r):
+        sorted_m = self.sorted_diagonal()
+        indexes  = sorted_m.transpose().rows[-1]
+
+        next_j = None
+
+        for i in r[-1][::-1]:
+            col = sorted_m.col(i)
+            if 0 in col:
+                next_j = indexes[col.index(0)]
+                break
+
+        return next_j
+
+    def find_next(self):
+        sorted_m = self.sorted_diagonal()
+
+        max_zeroes = 0
+        row_zeroes = None
+        for row in sorted_m.rows:
+            zeroes = len(filter(lambda x: x == 0,row[:-1]))
+            if max_zeroes < zeroes:
+                max_zeroes = zeroes
+                row_zeroes = row[-1]
+
+        if not row_zeroes:
+            row_zeroes = sorted_m.rows[0][-1]
+
+        return row_zeroes
+
+    def all_pairs(self):
+        if 0 in [i for row in self.rows for i in row]:
+            return False
+        else:
+            return True
+
+if __name__ == "__main__":
+    r = [[0, 1, 2, 3], [4, 5, 6, 0], [1, 4, 2, 5], [3, 6, 1, 2], [4, 3, 5]]
+    m = MinTimesKMatrix.pairs(r,7)
+
