@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
-import itertools
 import sys
+import itertools
+from matrix import MinTimesKMatrix as M
 
 
 class Results:
@@ -9,57 +10,44 @@ class Results:
         self.N = n
         self.K = k
         self.column  = []
-        self.results = []
+        self.subsets = []
 
     def append(self, value):
         self.column.append(value)
         if self.column_complete():
-            self.results.append(self.column)
+            column_copy = self.column
+            self.subsets.append(column_copy)
             self.column = []
 
     def column_complete(self):
         return len(self.column) % self.K == 0
+        # return len(self.column) == 0
 
-    def previous_values(self):
-        return self.column[:]
+    def r(self):
+        r = self.subsets[:]
+        if self.column:
+            r.append(self.column)
+        return r
 
-    def pairs(self):
-        r = self.results[:]
-        r.append(self.column)
+    def min_times_k(self):
+        return len(self.subsets)
 
-        existing_combinations = []
-
-        for col in r:
-            existing_combinations.extend(itertools.combinations(col,2))
-
-        pairs = []
-        # TODO: all combinations should already be stored
-        for pair in itertools.combinations(range(self.N),2):
-            count = len(filter(lambda x: x == pair, existing_combinations))
-            pairs.append([pair,count])
-
-        return pairs
-
-class MinCombNK:
+class MinTimesK:
     """
     This is the class used to calculate the minimum number of ...
     Willy, a bit of literature here, s'il te plait !
 
     Instance variables:
 
-        self.N
+        self.N:
 
-        self.K
+        self.K:
 
         self.i:
             The current i-index.
 
         self.j:
             The current j-index.
-
-        self.occurrences:
-            A list that keeps record of the number of times an element has
-            appeared.
     """
 
     def __init__(self, n, k):
@@ -77,145 +65,96 @@ class MinCombNK:
         self.i = 0
         self.j = 0
 
-        # O["occurr",]
-        self.occurrences = [0] * self.N
-
-        self.results = Results(self.N,self.K)
+        self.results          = Results(self.N,self.K)
 
     def solve(self):
-        self.results.append(self.i)
-        self.occurrences[self.i] += 1
+        self.assign_i(self.find_next())
 
-        contador = 0
-        while not self.finished() and contador < 20:
-            print "contador", contador
-            contador += 1
+        while True:
+            if self.results.column_complete():
+                next_i = self.find_next()
+                self.assign_i(next_i)
 
-            new_pair = False
-            previous_values = self.results.previous_values()
+            next_j = self.find_pair()
 
-            while not new_pair and len(previous_values) > 0:
-                new_pair = self.find_pair()
-                if not new_pair:
-                    self.i = previous_values.pop()
-
-            if new_pair:
-                print "I got a new pair"
-                # step 6
-                self.j = new_pair
-
-                # step 7
-                self.results.append(self.j)
-                self.occurrences[self.j] += 1
-                self.recalculate_pairs(self.results.column)
-
+            if next_j != None:
+                self.assign_j(next_j)
                 self.i = self.j
             else:
-                print "no new pair"
-                self.i = self.find_next()
+                next_i = self.find_next()
+                self.assign_i(next_i)
 
-                # step 2
-                self.results.append(self.i)
-                self.occurrences[self.i] += 1
-                self.recalculate_pairs(self.results.column)
-        print self.results.results
+            if self.finished(): break
+
+    def assign_i(self,i):
+        self.i = i
+        self.results.append(i)
+
+    def assign_j(self,j):
+        self.j = j
+        self.results.append(j)
+
+    def adjacency_matrix(self):
+        return M.pairs(self.results.r(),self.N)
+
+    def find_next(self):
+        return self.adjacency_matrix().find_next(self.results.r())
+
+    def find_pair(self):
+        return self.adjacency_matrix().find_pair(self.results.r())
 
     def finished(self):
-        # step 3, step 8
-        if self.results.column_complete():
-            if self.occurrences_complete():
-                # step 4, step 9
-                print self.results.results
-                return True
+        col_complete = self.results.column_complete()
+        all_pairs    = self.adjacency_matrix().all_pairs()
+
+        if col_complete and all_pairs:
+            return True
         else:
             return False
 
-    def find_pair(self):
-        # que nos devuelva un j
-        # o que falle y entonces tenemos que reasignar un i
+if __name__ == "__main__":
+    if len(sys.argv[1:]) == 2:
+        # accept command line args
+        n,k = map(int,sys.argv[1:])
+    else:
+        # otherwise use hardcoded args
+        n = 20
+        k = 6
 
-        # buscamos un j que no haya sido emparejado con i
-        # buscamos primero por los que hayan aparecido un minimo numero de veces
+    min_t_k = MinTimesK(n,k)
+    min_t_k.solve()
 
-        for e in self.sorted_occurrences():
-            if self.i == e:
-                continue
+    r = min_t_k.results.subsets
 
-            test_pair = tuple(sorted([self.i,e]))
-            pair_occurrences = self.get_pair_occurrences(test_pair)
+    print "Subsets:"
+    print M.build(r)
+    print
 
-            if pair_occurrences == 0:
-                return e
+    print "Pairs:"
+    m_pairs = M.pairs(r,n)
+    max_num = 0
+    for i,row in enumerate(m_pairs.rows):
+        val = max(i,max(row))
+        max_num = max(max_num, len(str(val)))
 
-        return False
+    for i,row in enumerate(m_pairs.rows):
+        print "%s: %s" % (str(i).rjust(max_num), str(row[:(i+1)]).ljust(max_num))
+    print
 
-    def find_next(self):
-        minimum_occurrences = min(self.occurrences_in_pairs())
-        for n in [(e+self.i) % self.N for e in range(self.N)]:
-            if self.occurrences_in_pairs()[n] == minimum_occurrences:
-                return n
+    print "min_times_k = %i" % min_t_k.results.min_times_k()
 
-    def recalculate_pairs(self,column):
-        pass
+    # check the result
+    missing = []
+    for i in xrange(n):
+        for j in xrange(n):
+            if i == j: continue
+            if m_pairs[i,j] == 0:
+                missing.append([i,j])
 
-    def get_pair_occurrences(self,pair):
-        return filter(lambda x: x[0] == pair, self.results.pairs())[0][1]
+    print
+    if len(missing) == 0:
+        print "CORRECT"
+    else:
+        print "Missing pairs:"
+        print missing
 
-    def sorted_occurrences(self):
-        occurrences = sorted(list(enumerate(self.occurrences)))
-        sorted_list = sorted(occurrences, key=lambda x: x[1])
-
-        return [e[0] for e in sorted_list]
-
-    def occurrences_in_pairs(self):
-        occurrences = []
-        for i in range(self.N):
-            count = 0
-            for pair in self.results.pairs():
-                if i in pair[0] and pair[1] > 0:
-                    count += 1
-            occurrences.append(count)
-        return occurrences
-
-    def occurrences_complete(self):
-        return self.occurrences_in_pairs() == [self.N - 1] * self.N
-
-    # IGNORE:
-    # def next_i(self):
-    #     """
-    #     Increments the i-index by one, and wraps around the end of the list.
-    #     """
-
-    #     self.i = (self.i+1) % self.N
-    #     return self.i
-
-    # def find_i(self):
-    #     """
-    #     Returns the best guess for the next most optimum i-index.
-
-    #     Algorithm: returns the first element after sorting them by occurrences
-    #     as primary key, and occurrences_in_pairs as secondary key.
-    #     """
-
-    #     l = zip(range(self.N), self.occurrences, self.occurrences_in_pairs)
-    #     sorted_l = sorted(l,key = lambda e: e[1:])
-    #     return sorted_l[0][0]
-
-    # def ordered_i(self):
-    #     """
-    #     Returns the element list rotated on the current i-index.
-    #     """
-
-    #     r = range(self.N)
-    #     i = self.i
-    #     return r[i:]+r[:i]
-
-    # def append_result(self):
-    #     pass
-
-    # def complete(self):
-    #     return False
-
-
-min_t_k = MinCombNK(7,4)
-min_t_k.solve()
