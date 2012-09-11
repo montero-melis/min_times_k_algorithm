@@ -10,15 +10,7 @@ def csvline(filehandler,*args):
 # y lo marcamos como escritura: 'w' (write)
 f = open('report.csv', 'w')
 
-# csvline(f,10,20,[[1,2]])
-# csvline(f,11,21,[[2,2]],"pepe")
 
-# Cerramos el fichero
-# f.close()
-
-## output del programa
-# 10,20,[[1, 2]]
-# 11,21,[[2, 2]],pepe
 
 
 for n in range(2,40):
@@ -34,3 +26,13 @@ for n in range(2,40):
 		# print n, k, min_t_k.results.min_times_k()
 
 f.close()
+
+# csvline(f,10,20,[[1,2]])
+# csvline(f,11,21,[[2,2]],"pepe")
+
+## output del programa
+# 10,20,[[1, 2]]
+# 11,21,[[2, 2]],pepe
+
+# Cerramos el fichero
+# f.close()
