@@ -118,8 +118,8 @@ if __name__ == "__main__":
         n,k = map(int,sys.argv[1:])
     else:
         # otherwise use hardcoded args
-        n = 20
-        k = 6
+        n = 32
+        k = 22
 
     min_t_k = MinTimesK(n,k)
     min_t_k.solve()
